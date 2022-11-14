@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:first_project_with_firebase/src/auth.dart';
 import 'package:first_project_with_firebase/src/constants/constants.dart';
 import 'package:flutter/material.dart';
@@ -48,9 +49,13 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             ButtonWidget(
                 color: Colors.blueAccent,
                 onTap: () {
-                  Auth().createUserWithEmailAndPassword(
-                      email: email, password: password);
-                  Navigator.of(context).pushNamed(RouteNames.loginScreen);
+                  try {
+                    Auth().ceateUserWithEmailAndPassword(
+                        email: email, password: password);
+                    Navigator.of(context).pushNamed(RouteNames.loginScreen);
+                  } on FirebaseAuthException catch (e) {
+                    throw Exception(e);
+                  }
                 },
                 title: 'Register')
           ],

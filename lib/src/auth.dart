@@ -7,21 +7,21 @@ class Auth {
 
   Stream<User?> get authStateChanges => auth.authStateChanges();
 
-  Future<void> sendPasswordResetEmail({required String email}) async {
+  Future sendPasswordResetEmail({required String email}) async {
     await auth.sendPasswordResetEmail(email: email);
   }
 
-  Future<void> createUserWithEmailAndPassword(
+  Future ceateUserWithEmailAndPassword(
       {required String email, required String password}) async {
     await auth.createUserWithEmailAndPassword(email: email, password: password);
   }
 
-  Future<void> signInWithEmailAndPassword(
+  Future signInWithEmailAndPassword(
       {required String email, required String password}) async {
     await auth.signInWithEmailAndPassword(email: email, password: password);
   }
 
-  Future<void> signOut() async {
+  Future signOut() async {
     await auth.signOut();
   }
 }

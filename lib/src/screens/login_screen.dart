@@ -1,3 +1,5 @@
+import 'package:first_project_with_firebase/src/auth.dart';
+import 'package:first_project_with_firebase/src/constants/route_names.dart';
 import 'package:flutter/material.dart';
 
 import '../constants/constants.dart';
@@ -15,11 +17,12 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    // print(FirebaseAuth.instance.currentUser!.email);
   }
 
   @override
   Widget build(BuildContext context) {
+    String email = '';
+    String password = '';
     return Scaffold(
       backgroundColor: Colors.white,
       body: Padding(
@@ -34,16 +37,23 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             const SizedBox(height: 48.0),
             CustomTextField(
-                onChanged: (value) {}, hintText: 'Enter your email'),
+                onChanged: (value) => email = value!,
+                hintText: 'Enter your email'),
             const SizedBox(height: 8.0),
             CustomTextField(
-              onChanged: (value) {},
+              onChanged: (value) => password = value!,
               hintText: 'Enter your password.',
               obscureText: true,
             ),
             const SizedBox(height: 24.0),
             ButtonWidget(
-                color: Colors.lightBlueAccent, onTap: () {}, title: 'Login')
+                color: Colors.lightBlueAccent,
+                onTap: () {
+                  Auth().signInWithEmailAndPassword(
+                      email: email, password: password);
+                  Navigator.of(context).pushNamed(RouteNames.chatScreen);
+                },
+                title: 'Login')
           ],
         ),
       ),
