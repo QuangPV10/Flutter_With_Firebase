@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:first_project_with_firebase/src/auth.dart';
 import 'package:first_project_with_firebase/src/constants/constants.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,13 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  User? user;
+  @override
+  void initState() {
+    super.initState();
+    user = Auth().currentUser;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,7 +31,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 Navigator.of(context).pop();
               }),
         ],
-        title: const Text('⚡️Chat'),
+        centerTitle: true,
+        title: Text('⚡️${user!.email}'),
         backgroundColor: Colors.lightBlueAccent,
       ),
       body: SafeArea(
