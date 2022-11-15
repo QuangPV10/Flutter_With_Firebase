@@ -52,10 +52,14 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   Auth()
                       .ceateUserWithEmailAndPassword(
                           email: email, password: password)
-                      .then((value) => Navigator.of(context)
-                          .pushNamed(RouteNames.loginScreen))
-                      .onError((error, stackTrace) => Util().showSnackBar(
-                          context: context, content: error.toString()));
+                      .then((value) {
+                    // print(value);
+                    Auth().saveUserInFireStore(Auth().currentUser, password);
+                    Navigator.of(context).pushNamed(RouteNames.loginScreen);
+                  }).onError((error, stackTrace) {
+                    Util().showSnackBar(
+                        context: context, content: error.toString());
+                  });
                 },
                 title: 'Register')
           ],
