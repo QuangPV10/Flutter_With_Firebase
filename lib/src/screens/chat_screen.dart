@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:first_project_with_firebase/src/auth.dart';
 import 'package:first_project_with_firebase/src/constants/constants.dart';
+import 'package:first_project_with_firebase/src/widgets/message_buble_widget.dart';
 import 'package:flutter/material.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -12,13 +13,14 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  User? user;
+  final messageController = TextEditingController();
+  User? loggedUser;
   String message = '';
   final firestore = FirebaseFirestore.instance;
   @override
   void initState() {
     super.initState();
-    user = Auth().currentUser;
+    loggedUser = Auth().currentUser;
   }
 
   // void getMessage() async {
@@ -29,14 +31,14 @@ class _ChatScreenState extends State<ChatScreen> {
   //   }
   // }
 
-  void messageStream() async {
-    // khi có sự thay đổi thì gọi
-    await for (var snapshot in firestore.collection('messages').snapshots()) {
-      for (var message in snapshot.docs) {
-        print(message.data());
-      }
-    }
-  }
+  // void messageStream() async {
+  //   // khi có sự thay đổi thì gọi
+  //   await for (var snapshot in firestore.collection('messages').snapshots()) {
+  //     for (var message in snapshot.docs) {
+  //       print(message.data());
+  //     }
+  //   }
+  // }
 
   @override
   void dispose() {
@@ -53,13 +55,13 @@ class _ChatScreenState extends State<ChatScreen> {
           IconButton(
               icon: const Icon(Icons.close),
               onPressed: () {
-                messageStream();
+                // messageStream();
                 Auth().signOut();
                 Navigator.of(context).pop();
               }),
         ],
         centerTitle: true,
-        title: Text('⚡️${user!.email}'),
+        title: Text('⚡️${loggedUser!.email}'),
         backgroundColor: Colors.lightBlueAccent,
       ),
       body: SafeArea(
@@ -67,36 +69,7 @@ class _ChatScreenState extends State<ChatScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            StreamBuilder<QuerySnapshot>(
-              stream: firestore.collection('messages').snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  final messages = snapshot.data!.docs;
-                  List<Text> messageWidgets = [];
-                  for (var message in messages) {
-                    if (message.data() != null) {
-                      final messageMap = message.data() as Map;
-                      final messageText = messageMap['text'];
-                      final messageSender = messageMap['sender'];
-
-                      final messageWidget = Text('$messageText from $messageSender');
-
-                      // final messageSender = message.data()['sender'];
-                      messageWidgets.add(messageWidget);
-                    }
-                  }
-                  return Column(
-                    children: messageWidgets,
-                  );
-                }
-                if (!snapshot.hasData) {
-                  return const Center(
-                    child: CircularProgressIndicator(color: Colors.blue),
-                  );
-                }
-                return Container(color: Colors.red);
-              },
-            ),
+            messageStream(),
             Container(
               decoration: kMessageContainerDecoration,
               child: Row(
@@ -104,6 +77,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 children: <Widget>[
                   Expanded(
                     child: TextField(
+                      controller: messageController,
                       onChanged: (value) {
                         message = value;
                       },
@@ -112,7 +86,10 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   TextButton(
                     onPressed: () {
-                      firestore.collection('messages').add({'sender': user!.email, 'text': message});
+                      messageController.clear();
+                      firestore
+                          .collection('messages')
+                          .add({'sender': loggedUser!.email, 'text': message, 'time': DateTime.now()});
                     },
                     child: const Text(
                       'Send',
@@ -125,6 +102,53 @@ class _ChatScreenState extends State<ChatScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget messageStream() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: firestore.collection('messages').orderBy("time", descending: false).snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          final messages = snapshot.data!.docs.reversed;
+          List<MessageBuble> messageBubles = [];
+          for (var message in messages) {
+            if (message.data() != null) {
+              final messageMap = message.data() as Map;
+              final messageText = messageMap['text'];
+              final messageSender = messageMap['sender'];
+
+              final currentUser = loggedUser!.email;
+              bool isMe = false;
+              if (currentUser == messageSender) {
+                isMe = true;
+              }
+
+              final messageBuble = MessageBuble(
+                message: messageText,
+                sender: messageSender,
+                isMe: isMe,
+              );
+
+              // final messageSender = message.data()['sender'];
+              messageBubles.add(messageBuble);
+            }
+          }
+          return Expanded(
+            child: ListView(
+              reverse: true,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+              children: messageBubles,
+            ),
+          );
+        }
+        if (!snapshot.hasData) {
+          return const Center(
+            child: CircularProgressIndicator(color: Colors.blue),
+          );
+        }
+        return Container(color: Colors.red);
+      },
     );
   }
 }
