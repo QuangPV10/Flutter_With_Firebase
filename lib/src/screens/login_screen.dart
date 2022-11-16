@@ -1,6 +1,4 @@
-import 'package:first_project_with_firebase/src/Utils/util.dart';
 import 'package:first_project_with_firebase/src/auth.dart';
-import 'package:first_project_with_firebase/src/constants/route_names.dart';
 import 'package:flutter/material.dart';
 
 import '../constants/constants.dart';
@@ -37,9 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Image.asset(image),
             ),
             const SizedBox(height: 48.0),
-            CustomTextField(
-                onChanged: (value) => email = value!,
-                hintText: 'Enter your email'),
+            CustomTextField(onChanged: (value) => email = value!, hintText: 'Enter your email'),
             const SizedBox(height: 8.0),
             CustomTextField(
               onChanged: (value) => password = value!,
@@ -50,13 +46,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ButtonWidget(
                 color: Colors.lightBlueAccent,
                 onTap: () {
-                  Auth()
-                      .signInWithEmailAndPassword(
-                          email: email, password: password)
-                      .then((value) => Navigator.of(context)
-                          .pushNamed(RouteNames.chatScreen))
-                      .onError((error, stackTrace) => Util().showSnackBar(
-                          content: 'User does  not exist', context: context));
+                  Auth().signInWithEmailAndPassword(email: email, password: password, context: context);
                 },
                 title: 'Login')
           ],

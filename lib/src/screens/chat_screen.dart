@@ -39,6 +39,12 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    Auth().signOut();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -48,8 +54,8 @@ class _ChatScreenState extends State<ChatScreen> {
               icon: const Icon(Icons.close),
               onPressed: () {
                 messageStream();
-                // Auth().signOut();
-                // Navigator.of(context).pop();
+                Auth().signOut();
+                Navigator.of(context).pop();
               }),
         ],
         centerTitle: true,

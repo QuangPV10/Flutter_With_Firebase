@@ -48,17 +48,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             const SizedBox(height: 24.0),
             ButtonWidget(
                 color: Colors.blueAccent,
-                onTap: () {
-                  Auth()
-                      .ceateUserWithEmailAndPassword(
-                          email: email, password: password)
-                      .then((value) {
-                    // print(value);
-                    Auth().saveUserInFireStore(Auth().currentUser, password);
+                onTap: () async {
+                  Auth().ceateUserWithEmailAndPassword(email: email, password: password).then((value) {
+                    Auth().saveUserInFireStore(email, password);
                     Navigator.of(context).pushNamed(RouteNames.loginScreen);
                   }).onError((error, stackTrace) {
-                    Util().showSnackBar(
-                        context: context, content: error.toString());
+                    Util().showSnackBar(context: context, content: error.toString());
                   });
                 },
                 title: 'Register')
